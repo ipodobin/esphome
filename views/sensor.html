@@ -1,0 +1,163 @@
+---
+layout: layout.html
+title: Chip details
+---
+
+[[##head:
+<link rel="stylesheet" href="/css/jquery.gridster.min.css" />
+<script src="/js/jquery.gridster.min.js"></script>
+<link rel="stylesheet" href="/css/jquery.switchButton.css" />
+<script src="/js/jquery.switchButton.js"></script>
+
+<script>
+	var gridster;
+
+	$(function(){
+		// konfiguracja gridstera
+		gridster = $(".gridster ul").gridster({
+			widget_base_dimensions: [10, 10],
+			widget_margins: [5, 5],
+			draggable: {
+				handle: '.header'
+			},
+			helper: 'clone',
+			resize: {
+				enabled: true
+			}
+		}).data('gridster');
+		// gridster.disable();
+
+		// konfiguracja checkboxów
+		$("input[type=checkbox]").switchButton({
+			on_label: 'ON',
+			off_label: 'OFF',
+			labels_placement: "right"
+		});
+
+		// konfiguracja pól edytowalnych ([contenteditable="true"])
+		// żeby działały w gridsterze
+		$('[contenteditable="true"]').on('mouseover', function(){
+			gridster.disable_resize();
+		});
+		$('[contenteditable="true"]').on('mouseout', function(){
+			gridster.enable_resize();
+		});
+		// zmaiana nazwy przełącznika
+		$('.relay-name').on('blur', function(event){
+			var $this = $(this);
+			var chip_id = $this.closest('li').find('.relay-chip_id').val();
+			var index = $this.closest('.relay').find('.relay-index').val();
+			var name = $this.text().trim();
+			jQuery.ajax({
+				type: 'POST',
+				url: '/api/relay',
+				data: {
+					chip_id: chip_id,
+					index: index,
+					name: name
+				}
+			});
+		});
+	});
+
+	function onChangeRelaySwitch(el, ipaddress, index) {
+		var url = 'http://' + ipaddress + '/api';
+		var val = 0;
+		if(el.checked == true) {
+			val = 1;
+		}
+		jQuery.ajax({
+			type: "POST",
+			url: url,
+			data: {
+				"type": "relay",
+				"index": index,
+				"val": val
+			}
+		});
+	}
+</script>
+#]]
+
+[[##menu:
+
+#]]
+[[##info:
+
+#]]
+[[##content:
+<div class="gridster">
+	<ul style="list-style-type: none;">
+		<li data-row="1" data-col="1" data-sizex="15" data-sizey="10">
+			<div class="header">Info</div>
+			<table class="content">
+				<tbody>
+					<tr>
+						<th>Chip id:</th>
+						<td>[[=model.sensor.chip_id]]</td>
+					</tr>
+					<tr>
+						<th>Ip address:</th>
+						<td>[[=model.sensor.ipaddress]]</td>
+					</tr>
+					<tr>
+						<th>Type:</th>
+						<td>[[=model.sensor.type]]</td>
+					</tr>
+					<tr>
+						<th>Room:</th>
+						[[?model.sensor.room]]
+						<td>[[=model.sensor.room]]</td>
+						[[??true]]
+						<td>
+							<select style="float: left;" >
+								<option value="">no room selected</option>
+								[[?model.rooms ]]
+								[[~model.rooms :value:index]]
+								<option value="[[=value.id]]" [[?value.id==model.sensor.room]]selected[[?]]>[[=value.name]]</option>
+								[[~]]
+								[[?]]
+							</select>
+							<div class="ui-icon ui-icon-new"
+							style="float: left; margin-left: 5px; margin-top: 2px;" 
+							onclick="$('#newRoomDialog').modal();" />
+						</td>
+						[[?]]
+					</tr>
+				</tbody>
+			</table>
+		</li>
+		<li data-row="1" data-col="16" data-sizex="15" data-sizey="10">			
+			<div class="header">Relays</div>
+			<table class="content">
+				[[?model.relays.length ]]
+				[[~model.relays :value:index]]
+				<tr class="relay">
+					<td style="/*float: left; width: 200px;*/">
+						<div style="float: left; padding: 2px 2px 2px 5px;" contenteditable="true" class="relay-name">[[?value.name]] [[=value.name]] [[??true]] Relay [[=index+1]] [[??]] [[?]]</div>
+					</td>
+					<td style="/*text-align: center;*/">
+						<div class="switch-wrapper">
+							<input class="relay-status" 
+							type="checkbox" 
+							value="[[=value.state]]" 
+							style="float: left;" 
+							onchange="onChangeRelaySwitch(this, '[[=model.sensor.ipaddress]]', [[=value.index]])" 
+							[[?value.state===1]] checked [[?]] />
+						</div>
+					</td>
+					<input type="hidden" 
+					class="relay-index" 
+					value="[[=index]]" />
+				</tr>
+				[[~]]
+				[[?]]
+			</table>
+			<input type="hidden" 
+			class="relay-chip_id" 
+			value="[[=model.sensor.chip_id]]" />
+		</li>
+	</ul>
+</div>
+
+#]]

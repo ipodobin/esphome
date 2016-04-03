@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>[[= layout.title ]]</title>
+
+	<link rel="stylesheet" href="/css/style.css" />
+	<link rel="stylesheet" href="/css/jquery-ui.min.css" />
+	<!-- <link rel="stylesheet" href="/css/bootstrap.min.css" /> -->
+
+	<script src="/js/jquery-2.2.2.min.js"></script>
+	<script src="/js/jquery-ui.min.js"></script>
+	<script src="/js/bootstrap-modal.js"></script>
+	[[= layout.head ]]
+</head>
+<body>
+	<div class="container">
+		[[= layout.info ]] <br />
+		[[= layout.menu ]] <br />
+		[[= layout.content ]]
+	</div>
+	<!-- Modals -->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Modal Header</h4>
+				</div>
+				<div class="modal-body">
+					<p>Some text in the modal.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</body>
+	</html>

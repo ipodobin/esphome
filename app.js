@@ -28,36 +28,56 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // inicjalizacja bazy danych
-var file = /*"/" + */"test.db";
+var file = "test.db";
 var exists = fs.existsSync(file);
 if(!exists) {
   console.log("Creating DB file.");
   fs.openSync(file, "w");
 }
 var db = new sqlite3.Database(file);
-db.serialize(function() {
-  if(!exists) {
-    db.run('CREATE TABLE sensors (chip_id VARCHAR(10), room_id INTEGER, type SMALLINT, register_date DATE)');
+var rev = 0;
+if(!exists) {
+  db.serialize(function() {
+    db.run('CREATE TABLE app_rev (rev INTEGER)');
+    db.run('CREATE TABLE sensors (chip_id VARCHAR(10) PRIMARY KEY NOT NULL, room_id INTEGER, type SMALLINT, register_date DATE, ipaddress VARCHAR(15))');
     db.run('CREATE TABLE logs (chip_id VARCHAR(10), date DATE, type VARCHAR(10))');
-  }  
-  // var stmt = db.prepare("INSERT INTO Stuff VALUES (?)");  
-  // //Insert random data
-  // var rnd;
-  // for (var i = 0; i < 10; i++) {
-  //   rnd = Math.floor(Math.random() * 10000000);
-  //   stmt.run("Thing #" + rnd);
-  // }
-  // stmt.finalize();
-  // db.each("SELECT rowid AS id, thing FROM Stuff", function(err, row) {
-  //   console.log(row.id + ": " + row.thing);
-  // });
-});
+    db.run('CREATE TABLE relays (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(50), _index INTEGER, chip_id VARCHAR(10))');
+    db.run('CREATE TABLE rooms (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(50), chip_id VARCHAR(10), dimensions VARCHAR(100))');
+    rev = 2;
+    db.serialize(function() {
+      db.run('UPDATE app_rev SET rev=' + rev + ';');
+    });
+  });
+} else {
+  db.serialize(function() {
+    var query = 'SELECT rev FROM app_rev;';
+    db.get(query, function(err, row) {
+      if(err) {
+        console.log(err.message);
+      } else if(row != null) {
+        rev = row.rev;
+      } else {
+        rev = 0;
+        db.run('INSERT INTO app_rev VALUES(' + rev + ');');
+      }
+      switch(rev) {
+        case 0:
+        db.run('CREATE TABLE rooms (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(50), chip_id VARCHAR(10), dimensions VARCHAR(100))');
+        rev++;
+
+      }
+      db.serialize(function() {
+        db.run('UPDATE app_rev SET rev=' + rev + ';');
+      });
+    });
+  });
+}
 // db.close();
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
-    req.db = db;
-    next();
+  req.db = db;
+  next();
 });
 
 app.use('/', routes);

@@ -1,20 +1,39 @@
 ---
-layout: master.html
+layout: layout.html
 title: Registered sensors
 ---
+
+[[##head:
+
+#]]
 
 [[##menu:
 
 #]]
+
+[[##info:
+
+#]]
+
 [[##content:
-<ul>
-	[[?model.sensors.length ]]
-	[[~model.sensors :value:index]]
-	<li>
-		<div>[[=value.chip_id]] [[?value.room_id!=null]]([[=value.room_d]])[[?]]</div>
-		<div>[[=value.register_date]]</div>
-	</li>
-	[[~]]
-	[[?]]
-</ul>
+<table class="selectable">
+	<thead>
+		<tr>
+			<th>Chip id</th>
+			<th>Room</th>
+			<th>Register date</th>
+		</tr>
+	</thead>
+	<tbody>
+		[[?model.sensors.length ]]
+		[[~model.sensors :value:index]]
+		<tr onclick="document.location='/sensors/[[=value.chip_id]]';">
+			<td>[[=value.chip_id]]</td>
+			<td>[[?value.room_id!=null]][[=value.room_d]][[?]]</td>
+			<td>[[=value.register_date]]</td>
+		</tr>
+		[[~]]
+		[[?]]
+	</tbody>
+</table>
 #]]
