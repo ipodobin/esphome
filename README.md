@@ -1,3 +1,3 @@
-# esphome
+# sails_test
 
-npm install
+a [Sails](http://sailsjs.org) application

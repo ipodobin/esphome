@@ -1,0 +1,18 @@
+<table class="selectable">
+	<thead>
+		<tr>
+			<th>Device id</th>
+			<th>Room</th>
+			<th>Register date</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each devices}}
+		<tr onclick="document.location='/devices/{{id}}';">
+			<td>{{id}}</td>
+			<td>{{#if room}} {{room.id}} {{/if}}</td>
+			<td>{{dateFormat createdAt 'yyyy-mm-dd hh:MM:ss'}}</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>
